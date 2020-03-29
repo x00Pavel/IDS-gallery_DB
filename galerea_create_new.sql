@@ -112,6 +112,8 @@ CREATE TABLE UMELEC
     styl VARCHAR(100) NOT NULL,
     datum_narozeni DATE,
     datum_smrti DATE,
+    prezdivka VARCHAR(32),
+
     
     CONSTRAINT FK_U_PRONAJMATEL_U FOREIGN KEY (id_pronajmatel) REFERENCES PRONAJIMATEL(id_pronajimatel)
 );
