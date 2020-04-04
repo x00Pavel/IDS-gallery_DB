@@ -98,11 +98,15 @@ CREATE SEQUENCE pronajmatel_seq START WITH 1;
 INSERT INTO PRONAJIMATEL
 VALUES (pronajmatel_seq.NEXTVAL, 1, 'Oleksii', 'Korniienko');
 INSERT INTO PRONAJIMATEL
+VALUES (pronajmatel_seq.NEXTVAL, 1, 'Muchamed', 'Alli');
+INSERT INTO PRONAJIMATEL
 VALUES (pronajmatel_seq.NEXTVAL, 2, 'Pavel', 'Yadlouski');
 INSERT INTO PRONAJIMATEL
 VALUES (pronajmatel_seq.NEXTVAL, 3, 'Raul', 'Raulovich');
 INSERT INTO PRONAJIMATEL
 VALUES (pronajmatel_seq.NEXTVAL, 4, 'Michail', 'Shchekastii');
+INSERT INTO PRONAJIMATEL
+VALUES (pronajmatel_seq.NEXTVAL, 4, 'Michail', 'Novak');
         
 CREATE TABLE UMELEC
 (
@@ -137,7 +141,7 @@ CREATE TABLE FIRMA
 CREATE SEQUENCE firma_seq START WITH 1;	
 
 INSERT INTO FIRMA
-VALUES (firma_seq.NEXTVAL, 3, 'Ragul`s Company');
+VALUES (firma_seq.NEXTVAL, 4, 'Ragul`s Company');
 
 CREATE TABLE SOUKROMA_OSOBA
 (
@@ -173,6 +177,8 @@ INSERT INTO DELO
 VALUES (delo_seq.NEXTVAL, 2, 'alomalo', TO_DATE('11/11/2011', 'DD/MM/YYYY'), 'socha', 'Plovec,socha');
 INSERT INTO DELO
 VALUES (delo_seq.NEXTVAL, 3, 'Jaconda', TO_DATE('01/01/1995', 'DD/MM/YYYY'), 'obrazek', 'Mona Liza, Jaconda');
+INSERT INTO DELO
+VALUES (delo_seq.NEXTVAL, 3, 'Anaconda', TO_DATE('03/03/1995', 'DD/MM/YYYY'), 'obrazek', 'Some Anaconda');
 		
 CREATE TABLE POPLATEK
 (
@@ -187,6 +193,8 @@ CREATE SEQUENCE poplatek_seq START WITH 1;
 
 INSERT INTO POPLATEK
 VALUES (poplatek_seq.NEXTVAL, TO_DATE('06/03/2020', 'DD/MM/YYYY'), TO_DATE('06/03/2020', 'DD/MM/YYYY'), 0);
+INSERT INTO POPLATEK
+VALUES (poplatek_seq.NEXTVAL, TO_DATE('06/05/2020', 'DD/MM/YYYY'), NULL, 1000);
 INSERT INTO POPLATEK
 VALUES (poplatek_seq.NEXTVAL, TO_DATE('02/03/2020', 'DD/MM/YYYY'), NULL, 5000);
 INSERT INTO POPLATEK
@@ -232,9 +240,21 @@ CREATE SEQUENCE transakce_seq START WITH 1;
 INSERT INTO SEZNAM_TRANSAKCI
 VALUES (transakce_seq.NEXTVAL, 1, 1, TO_DATE('06/03/2020', 'DD/MM/YYYY'), 10000);
 INSERT INTO SEZNAM_TRANSAKCI
-VALUES (transakce_seq.NEXTVAL, 2, 2, TO_DATE('26/02/2020', 'DD/MM/YYYY'), 3000);
+VALUES (transakce_seq.NEXTVAL, 2, 2, TO_DATE('06/03/2020', 'DD/MM/YYYY'), 8000);
+INSERT INTO SEZNAM_TRANSAKCI
+VALUES (transakce_seq.NEXTVAL, 2, 2, TO_DATE('06/03/2020', 'DD/MM/YYYY'), 1000);
+INSERT INTO SEZNAM_TRANSAKCI
+VALUES (transakce_seq.NEXTVAL, 2, 3, TO_DATE('26/02/2020', 'DD/MM/YYYY'), 3000);
 INSERT INTO SEZNAM_TRANSAKCI
 VALUES (transakce_seq.NEXTVAL, 3, 2, TO_DATE('27/02/2020', 'DD/MM/YYYY'), 2000);
+INSERT INTO SEZNAM_TRANSAKCI
+VALUES (transakce_seq.NEXTVAL, 4, 4, TO_DATE('27/02/2020', 'DD/MM/YYYY'), 2000);
+INSERT INTO SEZNAM_TRANSAKCI
+VALUES (transakce_seq.NEXTVAL, 4, 4, TO_DATE('27/02/2020', 'DD/MM/YYYY'), 4000);
+INSERT INTO SEZNAM_TRANSAKCI
+VALUES (transakce_seq.NEXTVAL, 5, 4, TO_DATE('27/02/2020', 'DD/MM/YYYY'), 2000);
+INSERT INTO SEZNAM_TRANSAKCI
+VALUES (transakce_seq.NEXTVAL, 5, 4, TO_DATE('27/02/2020', 'DD/MM/YYYY'), 10000);
 	
 CREATE TABLE SEZNAM_DEL_V_EXPOZICI
 (
@@ -386,25 +406,48 @@ VALUES (misto_v_exp_seq.NEXTVAL, 4, 2, TO_DATE('14/03/2020', 'DD/MM/YYYY'), NULL
 INSERT INTO SEZNAM_MIST_V_EKSPOZICI
 VALUES (misto_v_exp_seq.NEXTVAL, 5, 3, TO_DATE('26/03/2020', 'DD/MM/YYYY'), NULL);
 
+-- Nepouzite vybaveni
 SELECT nazev, COUNT(*) pocet_nepouzitich_vybaveni  
 FROM VYBAVENI
 WHERE id_misto IS NULL
-GROUP BY nazev; -- cil: kontrola vybaveni, co se nepouziva, mozna ho mozna prodat atd
+GROUP BY nazev;
 
-
+-- Prehled plochy
 SELECT id_mistnost,typ_mista, SUM(velikost) plocha 
 FROM MISTO 
 GROUP BY id_mistnost ,typ_mista 
-ORDER BY id_mistnost ASC; -- cil: prehled plochy
+ORDER BY id_mistnost ASC;
 
+-- Neprirzeni pracovnikove
 SELECT jmeno, prijmeni FROM ZAMESTNANEC_V
-WHERE id_zamestnanec NOT IN (SELECT id_zamestnanec_m FROM MISTO); -- cil: najit neprirzenych pracovnikuv
+WHERE id_zamestnanec NOT IN (SELECT id_zamestnanec_m FROM MISTO);
 
+-- Pronajimateli, kteri jsou firmy
 SELECT P.jmeno, P.prijmeni, F.nazev 
 FROM PRONAJIMATEL P, FIRMA F 
-WHERE P.id_pronajimatel = f.id_pronajmatel -- cil: najit pronajimateli - firmy
+WHERE P.id_pronajimatel = f.id_pronajmatel;
 
+-- Vsechny nezaplacene expozice
 SELECT E.id_expozice, E.nazev_expozice 
 FROM EXPOZICE E, POPLATEK P 
 WHERE E.id_poplatku = P.id_cislo_poplatku 
-AND P.datum_zaplaceni IS NULL -- cil: najit vsechny nezaplacene expozice
+AND P.datum_zaplaceni IS NULL;
+
+-- Seznam tranzacki a pronajmatelu, kteri platily za stejnou expozici nekolikrat
+SELECT distinct pop.id_cislo_poplatku ,P.*, st1.suma
+FROM PRONAJIMATEL P, SEZNAM_TRANSAKCI ST1, SEZNAM_TRANSAKCI ST2, POPLATEK POP
+WHERE ST1.id_transakci != ST2.id_transakci
+AND ST1.id_pronajmatel = ST2.id_pronajmatel
+AND ST1.id_poplatek = ST2.id_poplatek
+AND pop.id_cislo_poplatku = st1.id_poplatek
+AND ST1.id_pronajmatel = P.id_pronajimatel
+order by id_pronajimatel;
+
+-- je li delo vystavene v nejake expozici
+select *
+from delo d
+where d.id_dela = 3 and
+exists(
+select *
+from SEZNAM_DEL_V_EXPOZICI SD
+where sd.id_delo = d.id_dela)
