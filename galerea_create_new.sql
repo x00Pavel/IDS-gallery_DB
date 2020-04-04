@@ -279,30 +279,35 @@ VALUES (mistnost_seq.NEXTVAL, 1);
 
 CREATE TABLE ZAMESTNANEC_V
 (
-    id_zamestanec NUMBER(5) NOT NULL CONSTRAINT PK_ZAMESTNANEC_U PRIMARY KEY,
+    id_zamestnanec NUMBER(5) NOT NULL CONSTRAINT PK_ZAMESTNANEC_U PRIMARY KEY,
     jmeno VARCHAR(32) NOT NULL,
-    primeni VARCHAR(32) NOT NULL
+    prijmeni VARCHAR(32) NOT NULL,
+    fk_id_adress NUMBER(5) NOT NULL
 );
 
 CREATE SEQUENCE zamestnanec_seq START WITH 1;
 
 INSERT INTO ZAMESTNANEC_V
-VALUES (zamestnanec_seq.NEXTVAL, 'Oleksii', 'Korniienko');
+VALUES (zamestnanec_seq.NEXTVAL, 'Oleksii', 'Korniienko', 1);
 INSERT INTO ZAMESTNANEC_V
-VALUES (zamestnanec_seq.NEXTVAL, 'Pavel', 'Yadlouskii');
+VALUES (zamestnanec_seq.NEXTVAL, 'Pavel', 'Yadlouskii', 2);
 INSERT INTO ZAMESTNANEC_V
-VALUES (zamestnanec_seq.NEXTVAL, 'Raul', 'Arghayev');
+VALUES (zamestnanec_seq.NEXTVAL, 'Raul', 'Arghayev', 3);
+INSERT INTO ZAMESTNANEC_V
+VALUES (zamestnanec_seq.NEXTVAL, 'Nikitasik', 'Moskaliasik', 3);
+INSERT INTO ZAMESTNANEC_V
+VALUES (zamestnanec_seq.NEXTVAL, 'Siriozhka', 'Salatien', 3);
 
 CREATE TABLE MISTO
 (
     id_misto NUMBER(5) NOT NULL CONSTRAINT PK_MISTO PRIMARY KEY,
     id_mistnost NUMBER(5) NOT NULL,
-    id_zamestanec_m NUMBER(5) NOT NULL,
+    id_zamestnanec_m NUMBER(5) NOT NULL,
     velikost NUMBER(*),
     cena NUMBER(*),
     typ_mista VARCHAR(32),
     
-    CONSTRAINT FK_ZAMESTNANEC FOREIGN KEY (id_zamestanec_m) REFERENCES ZAMESTNANEC_V(id_zamestanec),
+    CONSTRAINT FK_ZAMESTNANEC FOREIGN KEY (id_zamestnanec_m) REFERENCES ZAMESTNANEC_V(id_zamestnanec),
     CONSTRAINT FK_MISTNOST FOREIGN KEY (id_mistnost) REFERENCES MISTNOST(id_mistnost)
 );
 
@@ -311,11 +316,17 @@ CREATE SEQUENCE misto_seq START WITH 1;
 INSERT INTO MISTO
 VALUES (misto_seq.NEXTVAL, 1, 1, 100, 1000, 'stena');
 INSERT INTO MISTO
+VALUES (misto_seq.NEXTVAL, 1, 1, 200, 2000, 'stena');
+INSERT INTO MISTO
 VALUES (misto_seq.NEXTVAL, 1, 1, 500, 1500, 'podlaha');
 INSERT INTO MISTO
-VALUES (misto_seq.NEXTVAL, 2, 2, 300, 2000, 'stena');
+VALUES (misto_seq.NEXTVAL, 2, 2, 300, 2000, 'strop');
 INSERT INTO MISTO
 VALUES (misto_seq.NEXTVAL, 3, 2, 200, 3000, 'stena');
+INSERT INTO MISTO
+VALUES (misto_seq.NEXTVAL, 3, 2, 400, 3500, 'strop');
+INSERT INTO MISTO
+VALUES (misto_seq.NEXTVAL, 3, 2, 500, 4500, 'stena');
 INSERT INTO MISTO
 VALUES (misto_seq.NEXTVAL, 4, 3, 400, 4000, 'stena');
 
@@ -344,11 +355,11 @@ VALUES (vybaveni_seq.NEXTVAL, NULL, 'podstavec', NULL);
 INSERT INTO VYBAVENI
 VALUES (vybaveni_seq.NEXTVAL, 4, 'ramecek', NULL);
 INSERT INTO VYBAVENI
-VALUES (vybaveni_seq.NEXTVAL, NULL, 'stůl', 'jako u kralovny');
+VALUES (vybaveni_seq.NEXTVAL, NULL, 'stul', 'jako u kralovny');
 INSERT INTO VYBAVENI
 VALUES (vybaveni_seq.NEXTVAL, 5, 'ramecek', NULL);
 INSERT INTO VYBAVENI
-VALUES (vybaveni_seq.NEXTVAL, NULL, 'stůl', NULL);
+VALUES (vybaveni_seq.NEXTVAL, NULL, 'stul', NULL);
 
 CREATE TABLE SEZNAM_MIST_V_EKSPOZICI
 (
@@ -374,3 +385,26 @@ INSERT INTO SEZNAM_MIST_V_EKSPOZICI
 VALUES (misto_v_exp_seq.NEXTVAL, 4, 2, TO_DATE('14/03/2020', 'DD/MM/YYYY'), NULL);
 INSERT INTO SEZNAM_MIST_V_EKSPOZICI
 VALUES (misto_v_exp_seq.NEXTVAL, 5, 3, TO_DATE('26/03/2020', 'DD/MM/YYYY'), NULL);
+
+SELECT nazev, COUNT(*) pocet_nepouzitich_vybaveni  
+FROM VYBAVENI
+WHERE id_misto IS NULL
+GROUP BY nazev; -- cil: kontrola vybaveni, co se nepouziva, mozna ho mozna prodat atd
+
+
+SELECT id_mistnost,typ_mista, SUM(velikost) plocha 
+FROM MISTO 
+GROUP BY id_mistnost ,typ_mista 
+ORDER BY id_mistnost ASC; -- cil: prehled plochy
+
+SELECT jmeno, prijmeni FROM ZAMESTNANEC_V
+WHERE id_zamestnanec NOT IN (SELECT id_zamestnanec_m FROM MISTO); -- cil: najit neprirzenych pracovnikuv
+
+SELECT P.jmeno, P.prijmeni, F.nazev 
+FROM PRONAJIMATEL P, FIRMA F 
+WHERE P.id_pronajimatel = f.id_pronajmatel -- cil: najit pronajimateli - firmy
+
+SELECT E.id_expozice, E.nazev_expozice 
+FROM EXPOZICE E, POPLATEK P 
+WHERE E.id_poplatku = P.id_cislo_poplatku 
+AND P.datum_zaplaceni IS NULL -- cil: najit vsechny nezaplacene expozice
