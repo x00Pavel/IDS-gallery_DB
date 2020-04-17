@@ -50,7 +50,8 @@ DROP TABLE ZAMESTNANEC_V CASCADE CONSTRAINTS;
 DROP TABLE VYBAVENI CASCADE CONSTRAINTS;
 DROP TABLE SEZNAM_MIST_V_EKSPOZICI CASCADE CONSTRAINTS;
 -- Create autoincrement fro all IDs!!!!!!!!!
-		
+
+
 CREATE TABLE ADRESSA
 (
     id_adress NUMBER(5) NOT NULL CONSTRAINT PK_ADRESS PRIMARY KEY,
@@ -60,16 +61,6 @@ CREATE TABLE ADRESSA
 );
 
 CREATE SEQUENCE addr_seq START WITH 1;
-
---CREATE OR REPLACE TRIGGER addr_trig
---BEFORE INSERT ON ADRESSA 
---FOR EACH ROW
---
---BEGIN
---  SELECT addr_seq.NEXTVAL
---  INTO   :new.id_adress
---  FROM   dual;
---END;
 
 INSERT INTO ADRESSA
 VALUES (addr_seq.NEXTVAL, 62400, 'Cichnova', 'Brno');
@@ -360,26 +351,60 @@ CREATE TABLE VYBAVENI
     CONSTRAINT FK_MISTO_V FOREIGN KEY (id_misto) REFERENCES MISTO(id_misto)
 );
 
-CREATE SEQUENCE vybaveni_seq START WITH 1;
+-- solve muting tables with using of compound DML triggers
+CREATE OR REPLACE TRIGGER CHANGE_NULL_IN_VYBAVENI
+    FOR INSERT ON VYBAVENI
+    COMPOUND TRIGGER
+        update_comment BOOLEAN;
+        
+    BEFORE EACH ROW IS
+    BEGIN 
+        IF :old.popis IS NULL THEN 
+            update_comment := TRUE;
+        END IF;
+    END BEFORE EACH ROW;
+    
+    AFTER STATEMENT IS
+    BEGIN
+        IF update_comment THEN
+            UPDATE VYBAVENI
+                SET popis = 'neni popis'
+            WHERE popis IS NULL;
+        END IF;
+    END AFTER STATEMENT;
+END CHANGE_NULL_IN_VYBAVENI;
+/
+
+CREATE SEQUENCE vybaveni_seq START WITH 1 INCREMENT BY 1;
+
+CREATE OR REPLACE TRIGGER TEST_SEQ_VYBAVENI
+BEFORE INSERT ON VYBAVENI
+FOR EACH ROW
+    WHEN (new.id_vybaveni IS NULL)
+BEGIN
+    :new.id_vybaveni := vybaveni_seq.NEXTVAL;
+END;
+/
 
 INSERT INTO VYBAVENI
-VALUES (vybaveni_seq.NEXTVAL, 1, 'lampa', 'sveti jako slunicko');
+VALUES (NULL, 1, 'lampa', 'sveti jako slunicko');
 INSERT INTO VYBAVENI
-VALUES (vybaveni_seq.NEXTVAL, 2, 'podstavec', NULL);
+VALUES (NULL, 2, 'podstavec', NULL);
 INSERT INTO VYBAVENI
 VALUES (vybaveni_seq.NEXTVAL, 1, 'ramecek', 'proste bozi');
 INSERT INTO VYBAVENI
 VALUES (vybaveni_seq.NEXTVAL, 3, 'ramecek', NULL);
 INSERT INTO VYBAVENI
-VALUES (vybaveni_seq.NEXTVAL, NULL, 'podstavec', NULL);
+VALUES (NULL, NULL, 'podstavec', NULL);
 INSERT INTO VYBAVENI
-VALUES (vybaveni_seq.NEXTVAL, 4, 'ramecek', NULL);
+VALUES (NULL, 4, 'ramecek', NULL);
 INSERT INTO VYBAVENI
 VALUES (vybaveni_seq.NEXTVAL, NULL, 'stul', 'jako u kralovny');
 INSERT INTO VYBAVENI
 VALUES (vybaveni_seq.NEXTVAL, 5, 'ramecek', NULL);
 INSERT INTO VYBAVENI
 VALUES (vybaveni_seq.NEXTVAL, NULL, 'stul', NULL);
+
 
 CREATE TABLE SEZNAM_MIST_V_EKSPOZICI
 (
@@ -443,6 +468,9 @@ AND pop.id_cislo_poplatku = st1.id_poplatek
 AND ST1.id_pronajmatel = P.id_pronajimatel
 order by id_pronajimatel;
 
+
+SELECT PLAN_TABLE_OUTPUT FROM TABLE(DBMS_XPLAN.DISPLAY_CURSOR(format=>'ALLSTATS'));
+
 -- je li delo vystavene v nejake expozici
 select *
 from delo d
@@ -450,4 +478,46 @@ where d.id_dela = 3 and
 exists(
 select *
 from SEZNAM_DEL_V_EXPOZICI SD
-where sd.id_delo = d.id_dela)
+where sd.id_delo = d.id_dela);
+
+
+EXPLAIN PLAN FOR
+
+SELECT M.id_mistnost, z.id_zamestnanec, m.typ_mista, SUM(m.velikost) plocha
+FROM MISTO M, zamestnanec_v Z
+WHERE m.id_zamestnanec_m = z.id_zamestnanec
+GROUP BY m.id_mistnost, m.typ_mista, z.id_zamestnanec
+ORDER BY m.id_mistnost ASC;
+
+SELECT PLAN_TABLE_OUTPUT FROM TABLE(DBMS_XPLAN.DISPLAY());
+
+CREATE INDEX index_for_typ_mista ON MISTO(typ_mista);
+CREATE INDEX index_for_velikost ON MISTO(velikost);
+
+EXPLAIN PLAN FOR
+
+SELECT M.id_mistnost, z.id_zamestnanec, m.typ_mista, SUM(m.velikost) plocha
+FROM MISTO M, zamestnanec_v Z
+WHERE m.id_zamestnanec_m = z.id_zamestnanec
+GROUP BY m.id_mistnost, m.typ_mista, z.id_zamestnanec
+ORDER BY m.id_mistnost ASC;
+
+SELECT PLAN_TABLE_OUTPUT FROM TABLE(DBMS_XPLAN.DISPLAY());
+
+DROP INDEX index_for_typ_mista;
+DROP INDEX index_for_velikost; 
+
+CREATE MATERIALIZED VIEW MY_VIEW AS
+SELECT m.id_mistnost, z.id_zamestnanec, m.typ_mista, SUM(m.velikost) plocha
+FROM XKORNI02.MISTO M, XKORNI02.zamestnanec_v Z
+WHERE m.id_zamestnanec_m = z.id_zamestnanec
+GROUP BY m.id_mistnost, m.typ_mista, z.id_zamestnanec
+ORDER BY m.id_mistnost ASC;
+
+SELECT * FROM MY_VIEW;
+
+UPDATE MY_VIEW SET typ_mista = 'stena'
+WHERE typ_mista = 'sssstena';
+
+--GRANT ALL PRIVILEGES ON XKORNI02.MISTO to XYADLO00;
+--GRANT ALL PRIVILEGES ON XKORNI02.ZAMESTNANEC_V to XYADLO00;
