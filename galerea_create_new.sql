@@ -49,8 +49,8 @@ DROP TABLE MISTO CASCADE CONSTRAINTS;
 DROP TABLE ZAMESTNANEC_V CASCADE CONSTRAINTS;
 DROP TABLE VYBAVENI CASCADE CONSTRAINTS;
 DROP TABLE SEZNAM_MIST_V_EKSPOZICI CASCADE CONSTRAINTS;
--- Create autoincrement fro all IDs!!!!!!!!!
 
+DROP MATERIALIZED VIEW XYADLO00.MY_VIEW;
 
 CREATE TABLE ADRESSA
 (
@@ -59,20 +59,6 @@ CREATE TABLE ADRESSA
     ulice VARCHAR(32) NOT NULL,
     mesto VARCHAR(32) NOT NULL
 );
-
-CREATE SEQUENCE addr_seq START WITH 1;
-
-INSERT INTO ADRESSA
-VALUES (addr_seq.NEXTVAL, 62400, 'Cichnova', 'Brno');
-INSERT INTO ADRESSA
-VALUES (addr_seq.NEXTVAL, 62300, 'Pionirska', 'Brno');
-INSERT INTO ADRESSA
-VALUES (addr_seq.NEXTVAL, 60300, 'Husitska', 'Brno');
-INSERT INTO ADRESSA
-VALUES (addr_seq.NEXTVAL, 65100, 'Hlavni', 'Brno');
-INSERT INTO ADRESSA
-VALUES (addr_seq.NEXTVAL, 64700, 'Ceska', 'Brno');
-
 
 CREATE TABLE PRONAJIMATEL
 (
@@ -83,21 +69,6 @@ CREATE TABLE PRONAJIMATEL
     
     CONSTRAINT FK_ADRESSA FOREIGN KEY (fk_id_adress) REFERENCES ADRESSA(id_adress)
 );
-
-CREATE SEQUENCE pronajmatel_seq START WITH 1;		
-        
-INSERT INTO PRONAJIMATEL
-VALUES (pronajmatel_seq.NEXTVAL, 1, 'Oleksii', 'Korniienko');
-INSERT INTO PRONAJIMATEL
-VALUES (pronajmatel_seq.NEXTVAL, 1, 'Muchamed', 'Alli');
-INSERT INTO PRONAJIMATEL
-VALUES (pronajmatel_seq.NEXTVAL, 2, 'Pavel', 'Yadlouski');
-INSERT INTO PRONAJIMATEL
-VALUES (pronajmatel_seq.NEXTVAL, 3, 'Raul', 'Raulovich');
-INSERT INTO PRONAJIMATEL
-VALUES (pronajmatel_seq.NEXTVAL, 4, 'Michail', 'Shchekastii');
-INSERT INTO PRONAJIMATEL
-VALUES (pronajmatel_seq.NEXTVAL, 4, 'Michail', 'Novak');
         
 CREATE TABLE UMELEC
 (
@@ -111,15 +82,6 @@ CREATE TABLE UMELEC
     CONSTRAINT FK_U_PRONAJMATEL_U FOREIGN KEY (id_pronajmatel) REFERENCES PRONAJIMATEL(id_pronajimatel)
 );
 
-CREATE SEQUENCE umelec_seq START WITH 1;	
-
-INSERT INTO UMELEC
-VALUES (umelec_seq.NEXTVAL, 1, 'Snail', 'Obrazky', TO_DATE('03/02/1999', 'DD/MM/YYYY'), NULL);
-INSERT INTO UMELEC
-VALUES (umelec_seq.NEXTVAL, 2, 'Plovec', 'Sochy', TO_DATE('17/02/1993', 'DD/MM/YYYY'), NULL);
-INSERT INTO UMELEC
-VALUES (umelec_seq.NEXTVAL, NULL, 'Ragul', 'Obrazky', TO_DATE('30/03/2005', 'DD/MM/YYYY'), NULL);
-
 CREATE TABLE FIRMA
 (
     id_firmy NUMBER(5) NOT NULL CONSTRAINT PK_FIRMA PRIMARY KEY,
@@ -129,11 +91,6 @@ CREATE TABLE FIRMA
     CONSTRAINT FK_U_PRONAJMATEL_F FOREIGN KEY (id_pronajmatel) REFERENCES PRONAJIMATEL(id_pronajimatel)
 );
 
-CREATE SEQUENCE firma_seq START WITH 1;	
-
-INSERT INTO FIRMA
-VALUES (firma_seq.NEXTVAL, 4, 'Ragul`s Company');
-
 CREATE TABLE SOUKROMA_OSOBA
 (
     id_osoba NUMBER(5) NOT NULL CONSTRAINT PK_SOUKROMA_OSOBA PRIMARY KEY,
@@ -141,11 +98,6 @@ CREATE TABLE SOUKROMA_OSOBA
     
     CONSTRAINT FK_U_PRONAJMATEL_SO FOREIGN KEY (id_pronajmatel) REFERENCES PRONAJIMATEL(id_pronajimatel)
 );
-
-CREATE SEQUENCE soukr_seq START WITH 1;	
-
-INSERT INTO SOUKROMA_OSOBA
-VALUES (soukr_seq.NEXTVAL, 4);
 
 CREATE TABLE DELO
 (
@@ -159,17 +111,6 @@ CREATE TABLE DELO
         
     CONSTRAINT FK_UMELEC FOREIGN KEY (id_umelec) REFERENCES UMELEC(id_umelec)
 );	
-
-CREATE SEQUENCE delo_seq START WITH 1;	
-
-INSERT INTO DELO
-VALUES (delo_seq.NEXTVAL, 1, 'First obrazek', TO_DATE('09/09/1999', 'DD/MM/YYYY'), 'obrazek', 'Snail,obrazek,first');
-INSERT INTO DELO
-VALUES (delo_seq.NEXTVAL, 2, 'alomalo', TO_DATE('11/11/2011', 'DD/MM/YYYY'), 'socha', 'Plovec,socha');
-INSERT INTO DELO
-VALUES (delo_seq.NEXTVAL, 3, 'Jaconda', TO_DATE('01/01/1995', 'DD/MM/YYYY'), 'obrazek', 'Mona Liza, Jaconda');
-INSERT INTO DELO
-VALUES (delo_seq.NEXTVAL, 3, 'Anaconda', TO_DATE('03/03/1995', 'DD/MM/YYYY'), 'obrazek', 'Some Anaconda');
 		
 CREATE TABLE POPLATEK
 (
@@ -180,17 +121,6 @@ CREATE TABLE POPLATEK
     
 );
 
-CREATE SEQUENCE poplatek_seq START WITH 1;	
-
-INSERT INTO POPLATEK
-VALUES (poplatek_seq.NEXTVAL, TO_DATE('06/03/2020', 'DD/MM/YYYY'), TO_DATE('06/03/2020', 'DD/MM/YYYY'), 0);
-INSERT INTO POPLATEK
-VALUES (poplatek_seq.NEXTVAL, TO_DATE('06/05/2020', 'DD/MM/YYYY'), NULL, 1000);
-INSERT INTO POPLATEK
-VALUES (poplatek_seq.NEXTVAL, TO_DATE('02/03/2020', 'DD/MM/YYYY'), NULL, 5000);
-INSERT INTO POPLATEK
-VALUES (poplatek_seq.NEXTVAL, TO_DATE('11/03/2020', 'DD/MM/YYYY'), NULL, 45000);
-		
 CREATE TABLE EXPOZICE
 (
     id_expozice NUMBER(5) NOT NULL CONSTRAINT PK_EXPOZICE PRIMARY KEY,
@@ -204,15 +134,6 @@ CREATE TABLE EXPOZICE
     CONSTRAINT FK_POPLATEK_E FOREIGN KEY (id_poplatku) REFERENCES POPLATEK(id_cislo_poplatku)
 );
 
-CREATE SEQUENCE expozice_seq START WITH 1;
-
-INSERT INTO EXPOZICE
-VALUES (expozice_seq.NEXTVAL, 1, 'Snail`s top1 expozice', TO_DATE('13/03/2020', 'DD/MM/YYYY'), TO_DATE('20/03/2020', 'DD/MM/YYYY'), 'obrazky', 'Nejlepsi obrazky ze vseho sveta!');
-INSERT INTO EXPOZICE
-VALUES (expozice_seq.NEXTVAL, 2, 'Plovec`s top1 expozice', TO_DATE('14/03/2020', 'DD/MM/YYYY'), TO_DATE('21/03/2020', 'DD/MM/YYYY'), 'sochy', NULL);
-INSERT INTO EXPOZICE
-VALUES (expozice_seq.NEXTVAL, 3, 'Mona Liza', TO_DATE('26/03/2020', 'DD/MM/YYYY'), TO_DATE('31/03/2020', 'DD/MM/YYYY'), 'obrazek', NULL);
-
 -- BRIDGE TABLE PRONAJMATEL - POPLATEK
 CREATE TABLE SEZNAM_TRANSAKCI
 (
@@ -225,27 +146,6 @@ CREATE TABLE SEZNAM_TRANSAKCI
     CONSTRAINT FK_PORNAJMATEL_ST FOREIGN KEY (id_pronajmatel) REFERENCES PRONAJIMATEL(id_pronajimatel),
     CONSTRAINT FK_POPLATEK_ST FOREIGN KEY (id_poplatek) REFERENCES POPLATEK(id_cislo_poplatku)
 );
-
-CREATE SEQUENCE transakce_seq START WITH 1;
-
-INSERT INTO SEZNAM_TRANSAKCI
-VALUES (transakce_seq.NEXTVAL, 1, 1, TO_DATE('06/03/2020', 'DD/MM/YYYY'), 10000);
-INSERT INTO SEZNAM_TRANSAKCI
-VALUES (transakce_seq.NEXTVAL, 2, 2, TO_DATE('06/03/2020', 'DD/MM/YYYY'), 8000);
-INSERT INTO SEZNAM_TRANSAKCI
-VALUES (transakce_seq.NEXTVAL, 2, 2, TO_DATE('06/03/2020', 'DD/MM/YYYY'), 1000);
-INSERT INTO SEZNAM_TRANSAKCI
-VALUES (transakce_seq.NEXTVAL, 2, 3, TO_DATE('26/02/2020', 'DD/MM/YYYY'), 3000);
-INSERT INTO SEZNAM_TRANSAKCI
-VALUES (transakce_seq.NEXTVAL, 3, 2, TO_DATE('27/02/2020', 'DD/MM/YYYY'), 2000);
-INSERT INTO SEZNAM_TRANSAKCI
-VALUES (transakce_seq.NEXTVAL, 4, 4, TO_DATE('27/02/2020', 'DD/MM/YYYY'), 2000);
-INSERT INTO SEZNAM_TRANSAKCI
-VALUES (transakce_seq.NEXTVAL, 4, 4, TO_DATE('27/02/2020', 'DD/MM/YYYY'), 4000);
-INSERT INTO SEZNAM_TRANSAKCI
-VALUES (transakce_seq.NEXTVAL, 5, 4, TO_DATE('27/02/2020', 'DD/MM/YYYY'), 2000);
-INSERT INTO SEZNAM_TRANSAKCI
-VALUES (transakce_seq.NEXTVAL, 5, 4, TO_DATE('27/02/2020', 'DD/MM/YYYY'), 10000);
 	
 CREATE TABLE SEZNAM_DEL_V_EXPOZICI
 (
@@ -259,34 +159,11 @@ CREATE TABLE SEZNAM_DEL_V_EXPOZICI
     CONSTRAINT FK_DELO_SDE FOREIGN KEY (id_delo) REFERENCES DELO(id_dela)
 );
 
-CREATE SEQUENCE delo_v_exp_seq START WITH 1;
-
-INSERT INTO SEZNAM_DEL_V_EXPOZICI
-VALUES (delo_v_exp_seq.NEXTVAL, 1, 1, TO_DATE('13/03/2020', 'DD/MM/YYYY'), TO_DATE('20/03/2020', 'DD/MM/YYYY'));
-INSERT INTO SEZNAM_DEL_V_EXPOZICI
-VALUES (delo_v_exp_seq.NEXTVAL, 2, 2, TO_DATE('14/03/2020', 'DD/MM/YYYY'), TO_DATE('21/03/2020', 'DD/MM/YYYY'));
-INSERT INTO SEZNAM_DEL_V_EXPOZICI
-VALUES (delo_v_exp_seq.NEXTVAL, 3, 3, TO_DATE('26/03/2020', 'DD/MM/YYYY'), TO_DATE('31/03/2020', 'DD/MM/YYYY'));
-
-
 CREATE TABLE MISTNOST
 (
     id_mistnost NUMBER(5) NOT NULL CONSTRAINT PK_MISTNOST PRIMARY KEY,
     pocet_mist NUMBER(*) NOT NULL
 );
-
-CREATE SEQUENCE mistnost_seq START WITH 1;
-
-INSERT INTO MISTNOST
-VALUES (mistnost_seq.NEXTVAL, 5);
-INSERT INTO MISTNOST
-VALUES (mistnost_seq.NEXTVAL, 7);
-INSERT INTO MISTNOST
-VALUES (mistnost_seq.NEXTVAL, 15);
-INSERT INTO MISTNOST
-VALUES (mistnost_seq.NEXTVAL, 3);
-INSERT INTO MISTNOST
-VALUES (mistnost_seq.NEXTVAL, 1);
 
 CREATE TABLE ZAMESTNANEC_V
 (
@@ -295,19 +172,6 @@ CREATE TABLE ZAMESTNANEC_V
     prijmeni VARCHAR(32) NOT NULL,
     fk_id_adress NUMBER(5) NOT NULL
 );
-
-CREATE SEQUENCE zamestnanec_seq START WITH 1;
-
-INSERT INTO ZAMESTNANEC_V
-VALUES (zamestnanec_seq.NEXTVAL, 'Oleksii', 'Korniienko', 1);
-INSERT INTO ZAMESTNANEC_V
-VALUES (zamestnanec_seq.NEXTVAL, 'Pavel', 'Yadlouskii', 2);
-INSERT INTO ZAMESTNANEC_V
-VALUES (zamestnanec_seq.NEXTVAL, 'Raul', 'Arghayev', 3);
-INSERT INTO ZAMESTNANEC_V
-VALUES (zamestnanec_seq.NEXTVAL, 'Nikitasik', 'Moskaliasik', 3);
-INSERT INTO ZAMESTNANEC_V
-VALUES (zamestnanec_seq.NEXTVAL, 'Siriozhka', 'Salatien', 3);
 
 CREATE TABLE MISTO
 (
@@ -322,25 +186,6 @@ CREATE TABLE MISTO
     CONSTRAINT FK_MISTNOST FOREIGN KEY (id_mistnost) REFERENCES MISTNOST(id_mistnost)
 );
 
-CREATE SEQUENCE misto_seq START WITH 1;
-
-INSERT INTO MISTO
-VALUES (misto_seq.NEXTVAL, 1, 1, 100, 1000, 'stena');
-INSERT INTO MISTO
-VALUES (misto_seq.NEXTVAL, 1, 1, 200, 2000, 'stena');
-INSERT INTO MISTO
-VALUES (misto_seq.NEXTVAL, 1, 1, 500, 1500, 'podlaha');
-INSERT INTO MISTO
-VALUES (misto_seq.NEXTVAL, 2, 2, 300, 2000, 'strop');
-INSERT INTO MISTO
-VALUES (misto_seq.NEXTVAL, 3, 2, 200, 3000, 'stena');
-INSERT INTO MISTO
-VALUES (misto_seq.NEXTVAL, 3, 2, 400, 3500, 'strop');
-INSERT INTO MISTO
-VALUES (misto_seq.NEXTVAL, 3, 2, 500, 4500, 'stena');
-INSERT INTO MISTO
-VALUES (misto_seq.NEXTVAL, 4, 3, 400, 4000, 'stena');
-
 CREATE TABLE VYBAVENI
 (
     id_vybaveni NUMBER(5) NOT NULL CONSTRAINT PK_VYBAVENI PRIMARY KEY,
@@ -351,6 +196,51 @@ CREATE TABLE VYBAVENI
     CONSTRAINT FK_MISTO_V FOREIGN KEY (id_misto) REFERENCES MISTO(id_misto)
 );
 
+CREATE TABLE SEZNAM_MIST_V_EKSPOZICI
+(
+    id_polozky NUMBER(5) NOT NULL CONSTRAINT PK_POLOZKA_SEZ_MIST_EKSP PRIMARY KEY,
+    id_misto NUMBER(5) NOT NULL,
+    id_ekspozici NUMBER(5) NOT NULL,
+    data_vystaveni DATE NOT NULL,
+    data_zruseni DATE,
+    
+    CONSTRAINT FK_EKSP_SEZ_MIST_EKSP FOREIGN KEY (id_ekspozici) REFERENCES EXPOZICE(id_expozice),
+    CONSTRAINT FK_MISTO_SEZ_MIST_EKSP FOREIGN KEY (id_misto) REFERENCES MISTO(id_misto)
+);
+
+----------------------------------------------------------------------
+-- Sequences 
+CREATE SEQUENCE addr_seq START WITH 1;
+
+CREATE SEQUENCE pronajmatel_seq START WITH 1;		
+
+CREATE SEQUENCE umelec_seq START WITH 1;	
+
+CREATE SEQUENCE firma_seq START WITH 1;	
+
+CREATE SEQUENCE soukr_seq START WITH 1;	
+
+CREATE SEQUENCE delo_seq START WITH 1;
+
+CREATE SEQUENCE poplatek_seq START WITH 1;	
+
+CREATE SEQUENCE expozice_seq START WITH 1;
+
+CREATE SEQUENCE transakce_seq START WITH 1;
+
+CREATE SEQUENCE delo_v_exp_seq START WITH 1;
+
+CREATE SEQUENCE mistnost_seq START WITH 1;
+
+CREATE SEQUENCE zamestnanec_seq START WITH 1;
+
+CREATE SEQUENCE misto_seq START WITH 1;
+
+CREATE SEQUENCE vybaveni_seq START WITH 1 INCREMENT BY 1;
+
+CREATE SEQUENCE misto_v_exp_seq START WITH 1;
+
+-- Trigeres
 -- solve muting tables with using of compound DML triggers
 CREATE OR REPLACE TRIGGER CHANGE_NULL_IN_VYBAVENI
     FOR INSERT ON VYBAVENI
@@ -375,8 +265,6 @@ CREATE OR REPLACE TRIGGER CHANGE_NULL_IN_VYBAVENI
 END CHANGE_NULL_IN_VYBAVENI;
 /
 
-CREATE SEQUENCE vybaveni_seq START WITH 1 INCREMENT BY 1;
-
 CREATE OR REPLACE TRIGGER TEST_SEQ_VYBAVENI
 BEFORE INSERT ON VYBAVENI
 FOR EACH ROW
@@ -385,6 +273,139 @@ BEGIN
     :new.id_vybaveni := vybaveni_seq.NEXTVAL;
 END;
 /
+
+
+
+----------------------------------------------------------------------
+-- Insertions	
+
+INSERT INTO ADRESSA
+VALUES (addr_seq.NEXTVAL, 62400, 'Cichnova', 'Brno');
+INSERT INTO ADRESSA
+VALUES (addr_seq.NEXTVAL, 62300, 'Pionirska', 'Brno');
+INSERT INTO ADRESSA
+VALUES (addr_seq.NEXTVAL, 60300, 'Husitska', 'Brno');
+INSERT INTO ADRESSA
+VALUES (addr_seq.NEXTVAL, 65100, 'Hlavni', 'Brno');
+INSERT INTO ADRESSA
+VALUES (addr_seq.NEXTVAL, 64700, 'Ceska', 'Brno');
+        
+INSERT INTO PRONAJIMATEL
+VALUES (pronajmatel_seq.NEXTVAL, 1, 'Oleksii', 'Korniienko');
+INSERT INTO PRONAJIMATEL
+VALUES (pronajmatel_seq.NEXTVAL, 1, 'Muchamed', 'Alli');
+INSERT INTO PRONAJIMATEL
+VALUES (pronajmatel_seq.NEXTVAL, 2, 'Pavel', 'Yadlouski');
+INSERT INTO PRONAJIMATEL
+VALUES (pronajmatel_seq.NEXTVAL, 3, 'Raul', 'Raulovich');
+INSERT INTO PRONAJIMATEL
+VALUES (pronajmatel_seq.NEXTVAL, 4, 'Michail', 'Shchekastii');
+INSERT INTO PRONAJIMATEL
+VALUES (pronajmatel_seq.NEXTVAL, 4, 'Michail', 'Novak');
+
+INSERT INTO UMELEC
+VALUES (umelec_seq.NEXTVAL, 1, 'Snail', 'Obrazky', TO_DATE('03/02/1999', 'DD/MM/YYYY'), NULL);
+INSERT INTO UMELEC
+VALUES (umelec_seq.NEXTVAL, 2, 'Plovec', 'Sochy', TO_DATE('17/02/1993', 'DD/MM/YYYY'), NULL);
+INSERT INTO UMELEC
+VALUES (umelec_seq.NEXTVAL, NULL, 'Ragul', 'Obrazky', TO_DATE('30/03/2005', 'DD/MM/YYYY'), NULL);
+
+INSERT INTO FIRMA
+VALUES (firma_seq.NEXTVAL, 4, 'Ragul`s Company');
+
+INSERT INTO SOUKROMA_OSOBA
+VALUES (soukr_seq.NEXTVAL, 4);
+
+INSERT INTO DELO
+VALUES (delo_seq.NEXTVAL, 1, 'First obrazek', TO_DATE('09/09/1999', 'DD/MM/YYYY'), 'obrazek', 'Snail,obrazek,first');
+INSERT INTO DELO
+VALUES (delo_seq.NEXTVAL, 2, 'alomalo', TO_DATE('11/11/2011', 'DD/MM/YYYY'), 'socha', 'Plovec,socha');
+INSERT INTO DELO
+VALUES (delo_seq.NEXTVAL, 3, 'Jaconda', TO_DATE('01/01/1995', 'DD/MM/YYYY'), 'obrazek', 'Mona Liza, Jaconda');
+INSERT INTO DELO
+VALUES (delo_seq.NEXTVAL, 3, 'Anaconda', TO_DATE('03/03/1995', 'DD/MM/YYYY'), 'obrazek', 'Some Anaconda');
+
+INSERT INTO POPLATEK
+VALUES (poplatek_seq.NEXTVAL, TO_DATE('06/03/2020', 'DD/MM/YYYY'), TO_DATE('06/03/2020', 'DD/MM/YYYY'), 0);
+INSERT INTO POPLATEK
+VALUES (poplatek_seq.NEXTVAL, TO_DATE('06/05/2020', 'DD/MM/YYYY'), NULL, 1000);
+INSERT INTO POPLATEK
+VALUES (poplatek_seq.NEXTVAL, TO_DATE('02/03/2020', 'DD/MM/YYYY'), NULL, 5000);
+INSERT INTO POPLATEK
+VALUES (poplatek_seq.NEXTVAL, TO_DATE('11/03/2020', 'DD/MM/YYYY'), NULL, 45000);
+
+INSERT INTO EXPOZICE
+VALUES (expozice_seq.NEXTVAL, 1, 'Snail`s top1 expozice', TO_DATE('13/03/2020', 'DD/MM/YYYY'), TO_DATE('20/03/2020', 'DD/MM/YYYY'), 'obrazky', 'Nejlepsi obrazky ze vseho sveta!');
+INSERT INTO EXPOZICE
+VALUES (expozice_seq.NEXTVAL, 2, 'Plovec`s top1 expozice', TO_DATE('14/03/2020', 'DD/MM/YYYY'), TO_DATE('21/03/2020', 'DD/MM/YYYY'), 'sochy', NULL);
+INSERT INTO EXPOZICE
+VALUES (expozice_seq.NEXTVAL, 3, 'Mona Liza', TO_DATE('26/03/2020', 'DD/MM/YYYY'), TO_DATE('31/03/2020', 'DD/MM/YYYY'), 'obrazek', NULL);
+
+INSERT INTO SEZNAM_TRANSAKCI
+VALUES (transakce_seq.NEXTVAL, 1, 1, TO_DATE('06/03/2020', 'DD/MM/YYYY'), 10000);
+INSERT INTO SEZNAM_TRANSAKCI
+VALUES (transakce_seq.NEXTVAL, 2, 2, TO_DATE('06/03/2020', 'DD/MM/YYYY'), 8000);
+INSERT INTO SEZNAM_TRANSAKCI
+VALUES (transakce_seq.NEXTVAL, 2, 2, TO_DATE('06/03/2020', 'DD/MM/YYYY'), 1000);
+INSERT INTO SEZNAM_TRANSAKCI
+VALUES (transakce_seq.NEXTVAL, 2, 3, TO_DATE('26/02/2020', 'DD/MM/YYYY'), 3000);
+INSERT INTO SEZNAM_TRANSAKCI
+VALUES (transakce_seq.NEXTVAL, 3, 2, TO_DATE('27/02/2020', 'DD/MM/YYYY'), 2000);
+INSERT INTO SEZNAM_TRANSAKCI
+VALUES (transakce_seq.NEXTVAL, 4, 4, TO_DATE('27/02/2020', 'DD/MM/YYYY'), 2000);
+INSERT INTO SEZNAM_TRANSAKCI
+VALUES (transakce_seq.NEXTVAL, 4, 4, TO_DATE('27/02/2020', 'DD/MM/YYYY'), 4000);
+INSERT INTO SEZNAM_TRANSAKCI
+VALUES (transakce_seq.NEXTVAL, 5, 4, TO_DATE('27/02/2020', 'DD/MM/YYYY'), 2000);
+INSERT INTO SEZNAM_TRANSAKCI
+VALUES (transakce_seq.NEXTVAL, 5, 4, TO_DATE('27/02/2020', 'DD/MM/YYYY'), 10000);
+
+INSERT INTO SEZNAM_DEL_V_EXPOZICI
+VALUES (delo_v_exp_seq.NEXTVAL, 1, 1, TO_DATE('13/03/2020', 'DD/MM/YYYY'), TO_DATE('20/03/2020', 'DD/MM/YYYY'));
+INSERT INTO SEZNAM_DEL_V_EXPOZICI
+VALUES (delo_v_exp_seq.NEXTVAL, 2, 2, TO_DATE('14/03/2020', 'DD/MM/YYYY'), TO_DATE('21/03/2020', 'DD/MM/YYYY'));
+INSERT INTO SEZNAM_DEL_V_EXPOZICI
+VALUES (delo_v_exp_seq.NEXTVAL, 3, 3, TO_DATE('26/03/2020', 'DD/MM/YYYY'), TO_DATE('31/03/2020', 'DD/MM/YYYY'));
+
+INSERT INTO MISTNOST
+VALUES (mistnost_seq.NEXTVAL, 5);
+INSERT INTO MISTNOST
+VALUES (mistnost_seq.NEXTVAL, 7);
+INSERT INTO MISTNOST
+VALUES (mistnost_seq.NEXTVAL, 15);
+INSERT INTO MISTNOST
+VALUES (mistnost_seq.NEXTVAL, 3);
+INSERT INTO MISTNOST
+VALUES (mistnost_seq.NEXTVAL, 1);
+
+INSERT INTO ZAMESTNANEC_V
+VALUES (zamestnanec_seq.NEXTVAL, 'Oleksii', 'Korniienko', 1);
+INSERT INTO ZAMESTNANEC_V
+VALUES (zamestnanec_seq.NEXTVAL, 'Pavel', 'Yadlouskii', 2);
+INSERT INTO ZAMESTNANEC_V
+VALUES (zamestnanec_seq.NEXTVAL, 'Raul', 'Arghayev', 3);
+INSERT INTO ZAMESTNANEC_V
+VALUES (zamestnanec_seq.NEXTVAL, 'Nikitasik', 'Moskaliasik', 3);
+INSERT INTO ZAMESTNANEC_V
+VALUES (zamestnanec_seq.NEXTVAL, 'Siriozhka', 'Salatien', 3);
+
+INSERT INTO MISTO
+VALUES (misto_seq.NEXTVAL, 1, 1, 100, 1000, 'stena');
+INSERT INTO MISTO
+VALUES (misto_seq.NEXTVAL, 1, 1, 200, 2000, 'stena');
+INSERT INTO MISTO
+VALUES (misto_seq.NEXTVAL, 1, 1, 500, 1500, 'podlaha');
+INSERT INTO MISTO
+VALUES (misto_seq.NEXTVAL, 2, 2, 300, 2000, 'strop');
+INSERT INTO MISTO
+VALUES (misto_seq.NEXTVAL, 3, 2, 200, 3000, 'stena');
+INSERT INTO MISTO
+VALUES (misto_seq.NEXTVAL, 3, 2, 400, 3500, 'strop');
+INSERT INTO MISTO
+VALUES (misto_seq.NEXTVAL, 3, 2, 500, 4500, 'stena');
+INSERT INTO MISTO
+VALUES (misto_seq.NEXTVAL, 4, 3, 400, 4000, 'stena');
+
 
 INSERT INTO VYBAVENI
 VALUES (NULL, 1, 'lampa', 'sveti jako slunicko');
@@ -406,20 +427,6 @@ INSERT INTO VYBAVENI
 VALUES (vybaveni_seq.NEXTVAL, NULL, 'stul', NULL);
 
 
-CREATE TABLE SEZNAM_MIST_V_EKSPOZICI
-(
-    id_polozky NUMBER(5) NOT NULL CONSTRAINT PK_POLOZKA_SEZ_MIST_EKSP PRIMARY KEY,
-    id_misto NUMBER(5) NOT NULL,
-    id_ekspozici NUMBER(5) NOT NULL,
-    data_vystaveni DATE NOT NULL,
-    data_zruseni DATE,
-    
-    CONSTRAINT FK_EKSP_SEZ_MIST_EKSP FOREIGN KEY (id_ekspozici) REFERENCES EXPOZICE(id_expozice),
-    CONSTRAINT FK_MISTO_SEZ_MIST_EKSP FOREIGN KEY (id_misto) REFERENCES MISTO(id_misto)
-);
-
-CREATE SEQUENCE misto_v_exp_seq START WITH 1;
-
 INSERT INTO SEZNAM_MIST_V_EKSPOZICI
 VALUES (misto_v_exp_seq.NEXTVAL, 1, 1, TO_DATE('13/03/2020', 'DD/MM/YYYY'), NULL);
 INSERT INTO SEZNAM_MIST_V_EKSPOZICI
@@ -430,7 +437,8 @@ INSERT INTO SEZNAM_MIST_V_EKSPOZICI
 VALUES (misto_v_exp_seq.NEXTVAL, 4, 2, TO_DATE('14/03/2020', 'DD/MM/YYYY'), NULL);
 INSERT INTO SEZNAM_MIST_V_EKSPOZICI
 VALUES (misto_v_exp_seq.NEXTVAL, 5, 3, TO_DATE('26/03/2020', 'DD/MM/YYYY'), NULL);
-
+-------------------------------------------------------------------
+-- Selects
 -- Nepouzite vybaveni
 SELECT nazev, COUNT(*) pocet_nepouzitich_vybaveni  
 FROM VYBAVENI
@@ -459,7 +467,7 @@ WHERE E.id_poplatku = P.id_cislo_poplatku
 AND P.datum_zaplaceni IS NULL;
 
 -- Seznam tranzacki a pronajmatelu, kteri platily za stejnou expozici nekolikrat
-SELECT distinct pop.id_cislo_poplatku ,P.*, st1.suma
+SELECT DISTINCT pop.id_cislo_poplatku ,P.*, st1.suma
 FROM PRONAJIMATEL P, SEZNAM_TRANSAKCI ST1, SEZNAM_TRANSAKCI ST2, POPLATEK POP
 WHERE ST1.id_transakci != ST2.id_transakci
 AND ST1.id_pronajmatel = ST2.id_pronajmatel
@@ -472,41 +480,16 @@ order by id_pronajimatel;
 SELECT PLAN_TABLE_OUTPUT FROM TABLE(DBMS_XPLAN.DISPLAY_CURSOR(format=>'ALLSTATS'));
 
 -- je li delo vystavene v nejake expozici
-select *
-from delo d
-where d.id_dela = 3 and
-exists(
-select *
-from SEZNAM_DEL_V_EXPOZICI SD
-where sd.id_delo = d.id_dela);
+SELECT *
+FROM delo d
+WHERE d.id_dela = 3 AND
+EXISTS(
+SELECT *
+FROM SEZNAM_DEL_V_EXPOZICI SD
+WHERE sd.id_delo = d.id_dela);
 
-
-EXPLAIN PLAN FOR
-
-SELECT M.id_mistnost, z.id_zamestnanec, m.typ_mista, SUM(m.velikost) plocha
-FROM MISTO M, zamestnanec_v Z
-WHERE m.id_zamestnanec_m = z.id_zamestnanec
-GROUP BY m.id_mistnost, m.typ_mista, z.id_zamestnanec
-ORDER BY m.id_mistnost ASC;
-
-SELECT PLAN_TABLE_OUTPUT FROM TABLE(DBMS_XPLAN.DISPLAY());
-
-CREATE INDEX index_for_typ_mista ON MISTO(typ_mista);
-CREATE INDEX index_for_velikost ON MISTO(velikost);
-
-EXPLAIN PLAN FOR
-
-SELECT M.id_mistnost, z.id_zamestnanec, m.typ_mista, SUM(m.velikost) plocha
-FROM MISTO M, zamestnanec_v Z
-WHERE m.id_zamestnanec_m = z.id_zamestnanec
-GROUP BY m.id_mistnost, m.typ_mista, z.id_zamestnanec
-ORDER BY m.id_mistnost ASC;
-
-SELECT PLAN_TABLE_OUTPUT FROM TABLE(DBMS_XPLAN.DISPLAY());
-
-DROP INDEX index_for_typ_mista;
-DROP INDEX index_for_velikost; 
-
+---------------------------------------------------------
+-- Materialize view
 CREATE MATERIALIZED VIEW MY_VIEW AS
 SELECT m.id_mistnost, z.id_zamestnanec, m.typ_mista, SUM(m.velikost) plocha
 FROM XKORNI02.MISTO M, XKORNI02.zamestnanec_v Z
@@ -521,3 +504,84 @@ WHERE typ_mista = 'sssstena';
 
 --GRANT ALL PRIVILEGES ON XKORNI02.MISTO to XYADLO00;
 --GRANT ALL PRIVILEGES ON XKORNI02.ZAMESTNANEC_V to XYADLO00;
+
+----------------------------------------------------------
+-- Upgrade perfomance
+EXPLAIN PLAN FOR
+SELECT M.velikost, M.typ_mista, COUNT(*) FROM MISTO M 
+JOIN seznam_mist_v_ekspozici S ON S.id_misto = M.id_misto
+JOIN seznam_del_v_expozici SD ON S.id_ekspozici = sd.id_expozici
+WHERE M.typ_mista = 'stena'
+GROUP BY M.velikost, M.typ_mista;
+
+SELECT PLAN_TABLE_OUTPUT FROM TABLE(DBMS_XPLAN.DISPLAY());
+
+CREATE INDEX IDX ON Misto(typ_mista);
+
+EXPLAIN PLAN FOR
+SELECT M.velikost, M.typ_mista, COUNT(*) FROM MISTO M 
+JOIN seznam_mist_v_ekspozici S ON S.id_misto = M.id_misto
+JOIN seznam_del_v_expozici SD ON S.id_ekspozici = sd.id_expozici
+WHERE M.typ_mista = 'stena'
+GROUP BY M.velikost, M.typ_mista;
+
+SELECT PLAN_TABLE_OUTPUT FROM TABLE(DBMS_XPLAN.DISPLAY());
+
+DROP INDEX IDX;
+
+-----------------------------------------------------------------
+-- Procedures
+SET SERVEROUTPUT ON;
+create or replace PROCEDURE CHANGE_POPIS
+AS
+    usedVar vybaveni.popis%TYPE := 'pouziva se';
+    unusedVar vybaveni.popis%TYPE := 'NEpouziva se';
+    noinfo vybaveni.popis%TYPE := 'popis zatim neni';
+    CURSOR MY_CURSOR IS
+        SELECT * FROM VYBAVENI;
+    tempBoolVar boolean := false;
+BEGIN
+    UPDATE VYBAVENI SET popis = unusedVar
+    WHERE id_misto is NULL;
+    FOR MYELEMENT IN MY_CURSOR
+    LOOP
+        IF MYELEMENT.id_misto is NULL THEN
+            tempBoolVar := true;
+        END IF;
+    END LOOP;
+   IF tempBoolVar THEN 
+    UPDATE VYBAVENI SET popis = usedVar
+    WHERE id_misto is not NULL AND popis is NULL;
+   ELSIF not tempBoolVar THEN
+    UPDATE VYBAVENI SET popis = noinfo
+    WHERE popis is NULL;
+   END IF;  
+END CHANGE_POPIS;
+/
+
+CREATE OR REPLACE PROCEDURE COST_CHECK
+AS
+temp INT;
+res FLOAT(10.5);
+CURSOR MY_CURSOR IS
+SELECT * FROM MISTO;
+BEGIN
+DBMS_OUTPUT.PUT_LINE('| id_misto |' || 'velikost |' || 'cena |' || 'cena za jeden metr ctverecni');
+FOR MYELEMENT IN MY_CURSOR
+LOOP
+BEGIN
+IF MYELEMENT.velikost is null THEN
+MYELEMENT.velikost := 0;
+END IF;
+IF MYELEMENT.cena is null THEN
+MYELEMENT.cena :=0;
+END IF;
+res := MYELEMENT.cena/MYELEMENT.velikost;
+DBMS_OUTPUT.PUT_LINE('| ' || MYELEMENT.id_misto || ' |' || MYELEMENT.velikost || ' |' || MYELEMENT.cena || ' |' || res);
+EXCEPTION
+WHEN zero_divide THEN
+DBMS_OUTPUT.PUT_LINE('| ' || MYELEMENT.id_misto || ' |' || MYELEMENT.velikost || ' |' || MYELEMENT.cena || ' |' || 'Prve zadejte velikost!');
+END;
+END LOOP;
+END COST_CHECK;
+
