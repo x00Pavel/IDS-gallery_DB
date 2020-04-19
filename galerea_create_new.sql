@@ -265,7 +265,8 @@ CREATE OR REPLACE TRIGGER CHANGE_NULL_IN_VYBAVENI
 END CHANGE_NULL_IN_VYBAVENI;
 /
 
-CREATE OR REPLACE TRIGGER TEST_SEQ_VYBAVENI
+
+CREATE OR REPLACE TRIGGER SEQ_VYBAVENI
 BEFORE INSERT ON VYBAVENI
 FOR EACH ROW
     WHEN (new.id_vybaveni IS NULL)
@@ -274,6 +275,7 @@ BEGIN
 END;
 /
 
+SELECT * FROM VYBAVENI;
 
 
 ----------------------------------------------------------------------
@@ -529,6 +531,7 @@ SELECT PLAN_TABLE_OUTPUT FROM TABLE(DBMS_XPLAN.DISPLAY());
 
 DROP INDEX IDX;
 
+
 -----------------------------------------------------------------
 -- Procedures
 SET SERVEROUTPUT ON;
@@ -584,4 +587,5 @@ DBMS_OUTPUT.PUT_LINE('| ' || MYELEMENT.id_misto || ' |' || MYELEMENT.velikost ||
 END;
 END LOOP;
 END COST_CHECK;
+
 
