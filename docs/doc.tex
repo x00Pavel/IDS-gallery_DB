@@ -114,22 +114,38 @@ There are two triggers: \textit{CHANGE\_NULL\_IN\_VYBAVENI} and
 
 \subsubsection{CHANGE\_NULL\_IN\_VYBAVENI}
 
-This trigger is used for changing row \textit{popis} in tabel \textit{VYBAVENI} 
+This trigger is used for changing row \textit{popis} in tabel \textit{EXPOZICE} 
 if there is NULL value to sting 'neni popis'. This trigger works on insert to 
 given tabel. In first implementation there was problem with muting tables and 
 trigger couldn't work. This problem is solved using compound DML triggers.
 \begin{figure}[h!]
     \centering
-        \includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{select_wt.png}
+        \includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{before_triger_popis.png}
         \caption{Before using trigger}
         
-        \includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{select_update.png}
+        \includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{after_triger_popis.png}
         \caption{With using trigger}
 \end{figure}
 
+\newpage
 \subsubsection{SEQ\_VYBAVENI}
 
-This trigger represents auto increment
+This trigger represents auto increment. Without trigger when there is NULL value 
+in ID colum, then there would be an error
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{before_trigger_seq.png}
+    \caption{Before using auto increment trigger}
+\end{figure}
+
+\noindent With using trigger, NULL value in column ID would be replaced with next value 
+of sequence
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\textwidth,height=\textheight,keepaspectratio]{after_triger_seq.png}
+\end{figure}
+
+\newpage
 
 \subsection{Procedures}
 Also, there are two procedures: \textit{CHANGE\_POPIS} and \textit{COST\_CHECK}.
@@ -142,11 +158,27 @@ object that is not placed anywhere, then the description of the objects (which
 did not exist before) will be "used" or "not used", otherwise the description 
 will be "description not specified".
 
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=\textwidth, height=\textheight, keepaspectratio]{before_chahge_popis.jpg}
+    \caption{Before using procedure}
+
+    \includegraphics[width=\textwidth, height=\textheight, keepaspectratio]
+    {after_change_popis.jpg}
+    \caption{After using procedure}
+\end{figure}
+\newpage
 \subsubsection{COST\_CHECK}
 
 This procedure is designed to calculate the cost of one square meter of each 
 place separately. If the area is not yet calculated (0) will issue a warning, 
 otherwise it will calculate and display a table of results.
+\begin{figure}[h!]
+    \centering
+    \includegraphics[scale=0.6]
+    {procedure_check.jpg}
+    \caption{Running procedure \texttt{COST\_CHECK}}
+\end{figure}
 
 \subsection{Explain plan}
 
@@ -159,13 +191,15 @@ in column \textit{typ\_mista} equals to \textit{stena}
     {prev_explain_plan.png}
 \end{figure}
 
-After using indexing on column \textit{typ\_mista}
+\noindent After using indexing on column \textit{typ\_mista}
 
 \begin{figure}[h!]
     \centering
     \includegraphics[width=\textwidth,height=\textheight,keepaspectratio]
     {new_explain_plan.png}
 \end{figure}
+
+\noindent you can see improvement in CPU usage
 
 \subsection{Materialized view}
 
