@@ -562,30 +562,47 @@ BEGIN
 END CHANGE_POPIS;
 /
 
-CREATE OR REPLACE PROCEDURE COST_CHECK
+create or replace PROCEDURE COST_CHECK
 AS
-temp INT;
-res FLOAT(10.5);
-CURSOR MY_CURSOR IS
-SELECT * FROM MISTO;
+    temp INT;
+    res FLOAT(10.5);
+    CURSOR MY_CURSOR IS
+        SELECT * FROM MISTO;
 BEGIN
-DBMS_OUTPUT.PUT_LINE('| id_misto |' || 'velikost |' || 'cena |' || 'cena za jeden metr ctverecni');
-FOR MYELEMENT IN MY_CURSOR
-LOOP
-BEGIN
-IF MYELEMENT.velikost is null THEN
-MYELEMENT.velikost := 0;
-END IF;
-IF MYELEMENT.cena is null THEN
-MYELEMENT.cena :=0;
-END IF;
-res := MYELEMENT.cena/MYELEMENT.velikost;
-DBMS_OUTPUT.PUT_LINE('| ' || MYELEMENT.id_misto || ' |' || MYELEMENT.velikost || ' |' || MYELEMENT.cena || ' |' || res);
-EXCEPTION
-WHEN zero_divide THEN
-DBMS_OUTPUT.PUT_LINE('| ' || MYELEMENT.id_misto || ' |' || MYELEMENT.velikost || ' |' || MYELEMENT.cena || ' |' || 'Prve zadejte velikost!');
-END;
-END LOOP;
+    DBMS_OUTPUT.PUT_LINE(' id_misto   ' || 'velikost   ' || 'cena  ' || 'cena za jeden metr ctverecni');
+    FOR MYELEMENT IN MY_CURSOR
+    LOOP
+        BEGIN
+        IF MYELEMENT.velikost is null THEN
+        MYELEMENT.velikost := 0;
+        END IF;
+        IF MYELEMENT.cena is null THEN
+        MYELEMENT.cena :=0;
+        END IF;
+        res := MYELEMENT.cena/MYELEMENT.velikost;
+        DBMS_OUTPUT.PUT_LINE('| ' || MYELEMENT.id_misto || '        |' || MYELEMENT.velikost || '      |' || MYELEMENT.cena || ' |' || res);
+        EXCEPTION
+        WHEN zero_divide THEN
+        DBMS_OUTPUT.PUT_LINE('| ' || MYELEMENT.id_misto || '        |' || MYELEMENT.velikost || '      |' || MYELEMENT.cena || ' |' || 'Prve zadejte velikost!');
+        END;
+    END LOOP;
 END COST_CHECK;
+/
 
+begin
+    DBMS_OUTPUT.put_line('=================BEFORE CHANGE_POPIS PROCEDURE==================');
+end;
+/
+SELECT * FROM vybaveni;
+EXEC CHANGE_POPIS;
+begin
+    DBMS_OUTPUT.put_line('=================AFTER CHANGE_POPIS PROCEDURE===================');
+end;
+/
+SELECT * FROM vybaveni;
+begin
+    DBMS_OUTPUT.put_line('=================RUN COST_CHECK PROCEDURE=======================');
+end;
+/
+EXEC COST_CHECK;
 
