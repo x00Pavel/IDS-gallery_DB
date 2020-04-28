@@ -183,7 +183,9 @@ otherwise it will calculate and display a table of results.
 \subsection{Explain plan}
 
 Query is used for selecting column same rows from table \textit{mista} with value 
-in column \textit{typ\_mista} equals to \textit{stena}
+in column \textit{typ\_mista} equals to \textit{stena}. The plan is not 
+optimal because it uses too much CPU because it works with not indexed fields.
+
 
 \begin{figure}[h!]
     \centering
@@ -191,7 +193,8 @@ in column \textit{typ\_mista} equals to \textit{stena}
     {prev_explain_plan.png}
 \end{figure}
 
-\noindent After using indexing on column \textit{typ\_mista}
+\noindent To improve this query, an index was added for the field being used 
+for comparison (city type).
 
 \begin{figure}[h!]
     \centering
@@ -199,7 +202,9 @@ in column \textit{typ\_mista} equals to \textit{stena}
     {new_explain_plan.png}
 \end{figure}
 
-\noindent you can see improvement in CPU usage
+\noindent you can see improvement in CPU usage. This improvement caused by the 
+fact that used column did not have indexes when query that use this column may 
+be executed quite  often.   
 
 \subsection{Materialized view}
 
